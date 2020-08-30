@@ -36,7 +36,7 @@ func NewConfig(width, height int, fontFile string, fontSize float64, colors []st
 }
 
 func DefaultConfig() *Config {
-	colors := []string{"#002b36"}
+	colors := []string{"#002b36", "#e6194b", "#0c4c98", "#ca8866"}
 	regular, _ := freetype.ParseFont(goregular.TTF)
 
 	return &Config{

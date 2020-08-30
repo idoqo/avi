@@ -11,7 +11,9 @@ import (
 
 func main() {
 	config := avi.DefaultConfig()
-	config.FontSize = 12.0
+	config.Width = 500
+	config.Height = 500
+	config.FontSize = 200
 	pic, err := avi.Create("UM", config)
 	if err != nil {
 		log.Fatal(err.Error())

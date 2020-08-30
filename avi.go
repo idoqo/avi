@@ -2,7 +2,6 @@ package avi
 
 import (
 	"errors"
-	"fmt"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
@@ -20,7 +19,7 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
 	// todo: make this deterministic based on input string
-	bg, err := hexToRGBA(config.HexColors[0])
+	bg, err := hexToRGBA(config.HexColors[1])
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +39,9 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	ctx.SetClip(canvas.Bounds())
 
 	bounds, _ := fontDrawer.BoundString(initials)
-	textWidth, textHeight := bounds.Max.X - bounds.Min.X,
-		bounds.Max.Y - bounds.Min.Y
-	yIndex := (fixed.I(config.Height) - textHeight) / 2 + textHeight
-	xIndex := (fixed.I(config.Width) - textWidth) / 2
+	xIndex := (fixed.I(config.Width) - fontDrawer.MeasureString(initials)) / 2
+	textHeight := bounds.Max.Y - bounds.Min.Y
+	yIndex := fixed.I((config.Height) - textHeight.Ceil()) / 2 + fixed.I(textHeight.Ceil())
 	fontDrawer.Dot = fixed.Point26_6{
 		X: xIndex,
 		Y: yIndex,
@@ -86,7 +84,6 @@ func hexToRGBA(hex string) (c color.RGBA, err error) {
 	default:
 		err = errInvalidHexCode
 	}
-	fmt.Printf("%#v", c)
 	return
 }
 
