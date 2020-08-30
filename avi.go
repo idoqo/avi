@@ -16,21 +16,21 @@ var (
 )
 
 func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
-	canvas := image.NewRGBA(image.Rect(0, 0, config.width, config.height))
+	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
 	// todo: make this deterministic based on input string
-	bg, err := hexToRGBA(config.hexColors[0])
+	bg, err := hexToRGBA(config.HexColors[0])
 	if err != nil {
 		return nil, err
 	}
 	draw.Draw(canvas, canvas.Bounds(), &image.Uniform{C: bg}, image.Point{}, draw.Src)
 
-	fontSize := config.fontSize
+	fontSize := config.FontSize
 
 	fontDrawer := &font.Drawer{
 		Dst: canvas,
 		Src: image.White,
-		Face: truetype.NewFace(config.font, &truetype.Options{
+		Face: truetype.NewFace(config.Font, &truetype.Options{
 			Size: fontSize,
 			Hinting: font.HintingFull,
 		}),
@@ -42,7 +42,7 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	// right-shift by 6 => divide by the y value by 64 to get the fixed type equivalent
 	// the discussion at https://groups.google.com/g/golang-nuts/c/tr-MftD7kbo/discussion seems fun.
 	yIndex := 10 + int(ctx.PointToFixed(fontSize)>>6)
-	xIndex := (fixed.I(config.width) - fontDrawer.MeasureString(initials)) / 2
+	xIndex := (fixed.I(config.Width) - fontDrawer.MeasureString(initials)) / 2
 	fontDrawer.Dot = fixed.Point26_6{
 		X: xIndex,
 		Y: fixed.I(yIndex),

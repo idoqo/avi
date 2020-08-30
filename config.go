@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	width     int
-	height    int
-	hexColors []string
-	font *truetype.Font
-	fontSize float64
+	Width     int
+	Height    int
+	HexColors []string
+	Font      *truetype.Font
+	FontSize  float64
 }
 
 func NewConfig(width, height int, fontFile string, fontSize float64, colors []string) (*Config, error) {
@@ -26,11 +26,11 @@ func NewConfig(width, height int, fontFile string, fontSize float64, colors []st
 	}
 
 	c := &Config{
-		width:     width,
-		height:    height,
-		hexColors: colors,
-		font: font,
-		fontSize: fontSize,
+		Width:     width,
+		Height:    height,
+		HexColors: colors,
+		Font:      font,
+		FontSize:  fontSize,
 	}
 	return c, nil
 }
@@ -40,10 +40,10 @@ func DefaultConfig() *Config {
 	regular, _ := freetype.ParseFont(goregular.TTF)
 
 	return &Config{
-		width:     100,
-		height:    100,
-		hexColors: colors,
-		font: regular,
-		fontSize: 48.0,
+		Width:     100,
+		Height:    100,
+		HexColors: colors,
+		Font:      regular,
+		FontSize:  48.0,
 	}
 }
