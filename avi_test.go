@@ -27,3 +27,16 @@ func TestInvalidHexToRGBA(t *testing.T) {
 		t.Errorf("expected %s to produce an error.", hex)
 	}
 }
+
+func TestNumberFromText(t *testing.T) {
+	text := "AA"
+	expected := 6565
+	num, err := numberFromText(text)
+	if err != nil {
+		t.Errorf("expecting conversion, got %s", err.Error())
+	}
+
+	if num != expected {
+		t.Errorf("expected %s to produce %d, got %d", text, expected, num)
+	}
+}

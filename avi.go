@@ -2,13 +2,13 @@ package avi
 
 import (
 	"errors"
-	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/draw"
+	"strconv"
 )
 
 var (
@@ -18,8 +18,7 @@ var (
 func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
-	// todo: make this deterministic based on input string
-	bg, err := hexToRGBA(config.HexColors[1])
+	bg, err := colorByText(initials, config.HexColors)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +34,6 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 			Hinting: font.HintingFull,
 		}),
 	}
-	ctx := freetype.NewContext()
-	ctx.SetClip(canvas.Bounds())
 
 	bounds, _ := fontDrawer.BoundString(initials)
 	xIndex := (fixed.I(config.Width) - fontDrawer.MeasureString(initials)) / 2
@@ -48,6 +45,24 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	}
 	fontDrawer.DrawString(initials)
 	return canvas, nil
+}
+
+func colorByText(text string, colorBucket []string) (c color.RGBA, err error){
+	numValue, err := numberFromText(text)
+	if err != nil {
+		c := color.RGBA{}
+		return c, err
+	}
+	hexCode := colorBucket[numValue% len(colorBucket)]
+	return hexToRGBA(hexCode)
+}
+
+func numberFromText(text string) (int, error) {
+	charCodes := ""
+	for _, ch := range text {
+		charCodes += strconv.Itoa(int(ch))
+	}
+	return strconv.Atoi(charCodes)
 }
 
 // hexToRGBA parses a web color given by its hex RGB format.
