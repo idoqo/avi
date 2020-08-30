@@ -3,7 +3,9 @@ package avi
 import (
 	"errors"
 	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/draw"
@@ -25,20 +27,27 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 
 	fontSize := config.fontSize
 
-	ctx := freetype.NewContext()
-	ctx.SetDst(canvas)
-	ctx.SetSrc(image.White)
-	ctx.SetFont(config.font)
-	ctx.SetFontSize(fontSize)
-	ctx.SetClip(canvas.Bounds())
-	ctx.SetHinting(font.HintingFull)
-
-	pt := freetype.Pt(10, 10+int(ctx.PointToFixed(fontSize)>>6))
-	_, err = ctx.DrawString(initials, pt)
-	if err != nil {
-		return canvas, err
+	fontDrawer := &font.Drawer{
+		Dst: canvas,
+		Src: image.White,
+		Face: truetype.NewFace(config.font, &truetype.Options{
+			Size: fontSize,
+			Hinting: font.HintingFull,
+		}),
 	}
+	ctx := freetype.NewContext()
+	ctx.SetClip(canvas.Bounds())
 
+
+	// right-shift by 6 => divide by the y value by 64 to get the fixed type equivalent
+	// the discussion at https://groups.google.com/g/golang-nuts/c/tr-MftD7kbo/discussion seems fun.
+	yIndex := 10 + int(ctx.PointToFixed(fontSize)>>6)
+	xIndex := (fixed.I(config.width) - fontDrawer.MeasureString(initials)) / 2
+	fontDrawer.Dot = fixed.Point26_6{
+		X: xIndex,
+		Y: fixed.I(yIndex),
+	}
+	fontDrawer.DrawString(initials)
 	return canvas, nil
 }
 
