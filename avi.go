@@ -2,6 +2,7 @@ package avi
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
@@ -38,14 +39,14 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 	ctx := freetype.NewContext()
 	ctx.SetClip(canvas.Bounds())
 
-
-	// right-shift by 6 => divide by the y value by 64 to get the fixed type equivalent
-	// the discussion at https://groups.google.com/g/golang-nuts/c/tr-MftD7kbo/discussion seems fun.
-	yIndex := 10 + int(ctx.PointToFixed(fontSize)>>6)
-	xIndex := (fixed.I(config.Width) - fontDrawer.MeasureString(initials)) / 2
+	bounds, _ := fontDrawer.BoundString(initials)
+	textWidth, textHeight := bounds.Max.X - bounds.Min.X,
+		bounds.Max.Y - bounds.Min.Y
+	yIndex := (fixed.I(config.Height) - textHeight) / 2 + textHeight
+	xIndex := (fixed.I(config.Width) - textWidth) / 2
 	fontDrawer.Dot = fixed.Point26_6{
 		X: xIndex,
-		Y: fixed.I(yIndex),
+		Y: yIndex,
 	}
 	fontDrawer.DrawString(initials)
 	return canvas, nil
@@ -85,6 +86,7 @@ func hexToRGBA(hex string) (c color.RGBA, err error) {
 	default:
 		err = errInvalidHexCode
 	}
+	fmt.Printf("%#v", c)
 	return
 }
 
