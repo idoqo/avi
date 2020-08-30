@@ -2,12 +2,15 @@ package avi
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/png"
+	"os"
 	"strconv"
 )
 
@@ -15,7 +18,11 @@ var (
 	errInvalidHexCode = errors.New("invalid format")
 )
 
-func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
+type Avi struct {
+	picture *image.RGBA
+}
+
+func Create(initials string, config *Config)  (avi *Avi, err error) {
 	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
 	bg, err := colorByText(initials, config.HexColors)
@@ -44,7 +51,46 @@ func Create(initials string, config *Config)  (picture *image.RGBA, err error) {
 		Y: yIndex,
 	}
 	fontDrawer.DrawString(initials)
-	return canvas, nil
+	return &Avi{
+		picture: canvas,
+	}, nil
+}
+
+// Save saves a generated avatar as `filename`. The file-type is
+// guessed based on the filename extension
+func (avi *Avi) Save(filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	/*extension := filepath.Ext(filename)
+	switch extension {
+	case ".jpg":
+		jpeg.Encode(f, avi.picture, nil)
+		break
+	case ".png":
+	default:
+		png.Encode(f, avi.picture)
+	}*/
+	png.Encode(f, avi.picture)
+	return nil
+}
+
+func (avi *Avi) ToSVG() (string, error) {
+	//todo
+	return "", fmt.Errorf("not implemented")
+}
+
+func (avi *Avi) ToBase64() (string, error) {
+	//todo
+	return "", fmt.Errorf("not implemented")
+}
+
+// Picture() returns the underlying image instance
+func (avi *Avi) Picture() *image.RGBA {
+	return avi.picture
 }
 
 func colorByText(text string, colorBucket []string) (c color.RGBA, err error){

@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/idoqo/avi"
-	"image/png"
 	"log"
-	"os"
 	"time"
 )
 
@@ -14,14 +12,9 @@ func main() {
 	config.Width = 500
 	config.Height = 500
 	config.FontSize = 200
-	pic, err := avi.Create("UM", config)
+	pic, err := avi.Create("AA", config)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	out, err := os.Create(fmt.Sprintf("out-%d.png", time.Now().Unix()))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer out.Close()
-	png.Encode(out, pic)
+	pic.Save(fmt.Sprintf("out-%d.png", time.Now().Unix()))
 }
