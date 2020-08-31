@@ -9,9 +9,12 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
 	"image/png"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -20,9 +23,11 @@ var (
 
 type Avi struct {
 	picture *image.RGBA
+	config *Config
 }
 
 func Create(initials string, config *Config)  (avi *Avi, err error) {
+	avi = &Avi{config: config}
 	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
 	bg, err := colorByText(initials, config.HexColors)
@@ -51,9 +56,8 @@ func Create(initials string, config *Config)  (avi *Avi, err error) {
 		Y: yIndex,
 	}
 	fontDrawer.DrawString(initials)
-	return &Avi{
-		picture: canvas,
-	}, nil
+	avi.picture = canvas
+	return avi, nil
 }
 
 // Save saves a generated avatar as `filename`. The file-type is
@@ -65,17 +69,18 @@ func (avi *Avi) Save(filename string) error {
 	}
 	defer f.Close()
 
-	/*extension := filepath.Ext(filename)
+	extension := strings.ToLower(filepath.Ext(filename))
 	switch extension {
-	case ".jpg":
-		jpeg.Encode(f, avi.picture, nil)
+	case ".jpg", "jpeg":
+		err = jpeg.Encode(f, avi.picture, avi.config.JpegOptions)
 		break
 	case ".png":
+		err = png.Encode(f, avi.picture)
+		break
 	default:
-		png.Encode(f, avi.picture)
-	}*/
-	png.Encode(f, avi.picture)
-	return nil
+		return fmt.Errorf("unsupported file format")
+	}
+	return err
 }
 
 func (avi *Avi) ToSVG() (string, error) {
