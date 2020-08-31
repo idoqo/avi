@@ -36,15 +36,31 @@ Avi exposes the picture it generates for you to further process. You can retriev
 rgba := avatar.Picture()
 ```
 
-### Configuration
+## Configuration
+Set up image width and height
+```go
+width, height := 100, 100
+config := avi.NewCanvas(width, height)
+```
+
+Set up font style to use
+```go
+// pass in a TTF file path and avi will take care of parsing.
+config := avi.NewCanvas(width, height) // you can also use avi.DefaultConfig() here 
+fontPath := "/path/to/your/ttf-file"
+config.SetFontFace(fontPath)
+```
+Set image quality (for JPEG files)
+```go
+config := avi.NewCanvas(width, height)
+config.SetJpegQuality(90)
+```
 - `Width`     int: Width of the image, in pixel
 - `Height`    int: Height of the image, in pixel
 - `HexColors` []string: array of hex color codes to use as background
-- `Font`      *truetype.Font: The font face to use, if you have a `TTF` file lying around,
-you can simply pass the ttf file path to `avi.NewConfig()` when setting up your configuration
-and the package will handle the parsing. 
+- `Font`      *truetype.Font: The font face to use.
 - `FontSize`  float64: Font size, take care, so it doesn't exceed `Width` and `Height`.
 Alternatively, you can call `avatar.DefaultConfig()` and override individual configurations
 as you deem fit. See `examples/create-image.go` for how to do that.
 
-Thanks to [laravolt/avatar] for inspiring the API design :)
+Thanks to [laravolt/avatar](https://github.com/laravolt/avatar) for inspiring the API design :)
