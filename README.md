@@ -24,11 +24,19 @@ initials := "MO"
 avatar, _ := avi.Create(initials, config)
 svgString := avatar.ToSVG()
 ```
-### Create and save as Base64 string (WIP haha)
+### Create and save as Base64 string
 ```go
 initials := "MO"
-avatar, _ := avi.Create(initials, config)
-base64 := avatar.ToBase64()
+cfg := avi.DefaultConfig()
+pic, err := avi.Create(initials, cfg)
+if err != nil {
+	log.Fatal(err.Error())
+}
+str, err := pic.ToBase64()
+if err != nil {
+	log.Fatal(err.Error())
+}
+fmt.Println(str)
 ```
 ### Get the underlying `*image.RGBA` value
 Avi exposes the picture it generates for you to further process. You can retrieve it with:
