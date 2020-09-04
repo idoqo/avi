@@ -1,11 +1,10 @@
 package avi
 
 import (
+	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/golang/freetype/truetype"
-	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/draw"
@@ -15,6 +14,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 var (
@@ -23,10 +26,11 @@ var (
 
 type Avi struct {
 	picture *image.RGBA
-	config *Config
+	config  *Config
 }
 
-func Create(initials string, config *Config)  (avi *Avi, err error) {
+//Create generates an avatar for initials given a valid configuration
+func Create(initials string, config *Config) (avi *Avi, err error) {
 	avi = &Avi{config: config}
 	canvas := image.NewRGBA(image.Rect(0, 0, config.Width, config.Height))
 
@@ -42,7 +46,7 @@ func Create(initials string, config *Config)  (avi *Avi, err error) {
 		Dst: canvas,
 		Src: image.White,
 		Face: truetype.NewFace(config.Font, &truetype.Options{
-			Size: fontSize,
+			Size:    fontSize,
 			Hinting: font.HintingFull,
 		}),
 	}
@@ -50,7 +54,7 @@ func Create(initials string, config *Config)  (avi *Avi, err error) {
 	bounds, _ := fontDrawer.BoundString(initials)
 	xIndex := (fixed.I(config.Width) - fontDrawer.MeasureString(initials)) / 2
 	textHeight := bounds.Max.Y - bounds.Min.Y
-	yIndex := fixed.I((config.Height) - textHeight.Ceil()) / 2 + fixed.I(textHeight.Ceil())
+	yIndex := fixed.I((config.Height)-textHeight.Ceil())/2 + fixed.I(textHeight.Ceil())
 	fontDrawer.Dot = fixed.Point26_6{
 		X: xIndex,
 		Y: yIndex,
@@ -83,28 +87,37 @@ func (avi *Avi) Save(filename string) error {
 	return err
 }
 
+//ToSVG returns the svg string representation of the generated picture
 func (avi *Avi) ToSVG() (string, error) {
 	//todo
 	return "", fmt.Errorf("not implemented")
 }
 
+//ToBase64 returns the base64 string equivalent of the generated picture (or any error that occurs
+//in the process)
 func (avi *Avi) ToBase64() (string, error) {
-	//todo
-	return "", fmt.Errorf("not implemented")
+	var (
+		err error
+		str string
+	)
+	buf := new(bytes.Buffer)
+	err = png.Encode(buf, avi.picture)
+	str = base64.StdEncoding.EncodeToString(buf.Bytes())
+	return str, err
 }
 
-// Picture() returns the underlying image instance
+// Picture returns the underlying image instance
 func (avi *Avi) Picture() *image.RGBA {
 	return avi.picture
 }
 
-func colorByText(text string, colorBucket []string) (c color.RGBA, err error){
+func colorByText(text string, colorBucket []string) (c color.RGBA, err error) {
 	numValue, err := numberFromText(text)
 	if err != nil {
 		c := color.RGBA{}
 		return c, err
 	}
-	hexCode := colorBucket[numValue% len(colorBucket)]
+	hexCode := colorBucket[numValue%len(colorBucket)]
 	return hexToRGBA(hexCode)
 }
 
@@ -152,4 +165,3 @@ func hexToRGBA(hex string) (c color.RGBA, err error) {
 	}
 	return
 }
-
