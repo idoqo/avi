@@ -1,0 +1,17 @@
+name: Do bunch of Go stuff on the repo
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.14.x, 1.15.x]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run tests
+        run: go test $(go list ./... | grep -v examples) -v -coverprofile=.test-coverage.txt
+        
