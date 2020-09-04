@@ -1,6 +1,8 @@
 ## idoqo/avi
 A Go package to generate user avatars based on their initials.
 
+![](./assets/ak.png) ![](./assets/ty.png)
+
 ## Installation
 ```
 go get github.com/idoqo/avi
