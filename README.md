@@ -20,12 +20,6 @@ if err != nil {
 }
 avatar.Save("avatar.png")
 ``` 
-### Create and save as SVG (WIP haha)
-```go
-initials := "MO"
-avatar, _ := avi.Create(initials, config)
-svgString := avatar.ToSVG()
-```
 ### Create and save as Base64 string
 ```go
 initials := "MO"
